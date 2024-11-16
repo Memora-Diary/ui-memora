@@ -16,12 +16,12 @@ import CreateAction from "@/components/dashboard/CreateAction";
 import toast from "react-hot-toast";
 
 // Add utility function for conversion
-const convertRBTCToUSD = (rbtcWei: bigint | number): number => {
-  // Convert from wei to RBTC
-  const rbtcAmount = Number(formatEther(BigInt(rbtcWei || 0)));
-  // Assuming 1 RBTC = $50,000 (you should get this from an API in production)
-  const rbtcPrice = 50000;
-  return rbtcAmount * rbtcPrice;
+const convertETHToUSD = (ethWei: bigint | number): number => {
+  // Convert from wei to ETH
+  const ethAmount = Number(formatEther(BigInt(ethWei || 0)));
+  // Assuming 1 ETH = $2,000 (you should get this from an API in production)
+  const ethPrice = 2000;
+  return ethAmount * ethPrice;
 };
 
 const formatUSD = (value: number): string => {
@@ -88,8 +88,7 @@ export default function Dashboard() {
     }
     return null;
   };
-
-  // Refresh NFTs function
+  
   const refreshNFTs = async () => {
     const toastId = toast.loading("Refreshing workflows...");
     setIsLoading(true);
@@ -109,11 +108,11 @@ export default function Dashboard() {
       setIsLoading(false);
     }
   };
-
-  // Initial fetch
+  // Move refreshNFTs inside useEffect or use useCallback
   useEffect(() => {
+
     refreshNFTs();
-  }, [nftIds]);
+  }, [nftIds, refetch, fetchNFTDetails]);
 
   // Calculate stats
   const stats = {
@@ -121,22 +120,22 @@ export default function Dashboard() {
     pendingTriggers: nftDetails.filter(nft => !nft.isTriggerDeclared).length,
     lockedValue: nftDetails.reduce((acc, nft) => {
       if (!nft.isTriggerDeclared) {
-        const usdValue = convertRBTCToUSD(nft.balance || 0);
+        const usdValue = convertETHToUSD(nft.balance || 0);
         return acc + usdValue;
       }
       return acc;
     }, 0),
-    lockedRBTC: Number(nftDetails.reduce((acc, nft) => 
+    lockedETH: Number(nftDetails.reduce((acc, nft) => 
       !nft.isTriggerDeclared ? acc + Number(formatEther(BigInt(nft.balance || 0))) : acc, 0
     ).toFixed(4)),
     releasedValue: nftDetails.reduce((acc, nft) => {
       if (nft.isTriggerDeclared) {
-        const usdValue = convertRBTCToUSD(nft.balance || 0);
+        const usdValue = convertETHToUSD(nft.balance || 0);
         return acc + usdValue;
       }
       return acc;
     }, 0),
-    releasedRBTC: Number(nftDetails.reduce((acc, nft) => 
+    releasedETH: Number(nftDetails.reduce((acc, nft) => 
       nft.isTriggerDeclared ? acc + Number(formatEther(BigInt(nft.balance || 0))) : acc, 0
     ).toFixed(4))
   };
@@ -150,7 +149,7 @@ export default function Dashboard() {
     { 
       label: "Locked Value", 
       value: formatUSD(stats.lockedValue),
-      subValue: `${stats.lockedRBTC} RBTC`,
+      subValue: `${stats.lockedETH} ETH`,
       color: "from-blue-500 to-blue-600",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
@@ -161,7 +160,7 @@ export default function Dashboard() {
     { 
       label: "Released Value", 
       value: formatUSD(stats.releasedValue),
-      subValue: `${stats.releasedRBTC} RBTC`,
+      subValue: `${stats.releasedETH} ETH`,
       color: "from-purple-500 to-purple-600",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
@@ -220,6 +219,7 @@ export default function Dashboard() {
             {connectedSocials || true ? (
               <Collections 
                 nftDetails={nftDetails} 
+                setNftDetails={setNftDetails}
                 isLoading={isLoading}
                 onRefresh={refreshNFTs}
               />

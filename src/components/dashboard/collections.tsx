@@ -12,11 +12,12 @@ type TabType = "active" | "inherited" | "notifications";
 
 interface CollectionsProps {
   nftDetails: NFTData[];
+  setNftDetails: (nftDetails: NFTData[]) => void;
   isLoading: boolean;
   onRefresh: () => Promise<void>;
 }
 
-export default function Collections({ nftDetails, isLoading, onRefresh }: CollectionsProps) {
+export default function Collections({ nftDetails, setNftDetails, isLoading, onRefresh }: CollectionsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("active");
   const [previousTab, setPreviousTab] = useState<TabType>("active");
   const { primaryWallet } = useDynamicContext();
@@ -104,6 +105,7 @@ export default function Collections({ nftDetails, isLoading, onRefresh }: Collec
         {activeTab === "active" && (
           <ActiveLegacy 
             nftDetails={nftDetails}
+            setNftDetails={setNftDetails}
             isLoading={isLoading}
             onRefresh={onRefresh}
           />

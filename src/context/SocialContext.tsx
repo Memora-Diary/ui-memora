@@ -52,12 +52,12 @@ interface SocialData {
 }
 
 interface SocialContextType {
-  connectedSocial: {
-    provider: 'farcaster' | 'telegram' | null;
-    isConnected: boolean;
-  };
-  socialData: SocialData | null;
-  updateSocialData: (data: Partial<SocialData>) => void;
+  socialData: any;
+  setSocialData: (data: any) => void;
+  hasSocialConnected: boolean;
+  setHasSocialConnected: (value: boolean) => void;
+  connectedSocial: { provider: 'farcaster' | 'telegram' | null; isConnected: boolean };
+  connectedSocials: boolean;
 }
 
 const SocialContext = createContext<SocialContextType | undefined>(undefined);
@@ -122,9 +122,12 @@ export const SocialProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   return (
     <SocialContext.Provider value={{ 
-      connectedSocial, 
       socialData, 
-      updateSocialData 
+      setSocialData, 
+      hasSocialConnected: connectedSocial.isConnected, 
+      setHasSocialConnected: setConnectedSocial as any,
+      connectedSocial: connectedSocial, 
+      connectedSocials: connectedSocial.isConnected
     }}>
       {children}
     </SocialContext.Provider>

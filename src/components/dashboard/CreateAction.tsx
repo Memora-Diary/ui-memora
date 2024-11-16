@@ -90,8 +90,8 @@ export const actionTypes = [
   },
   {
     id: 2,
-    alt: "TRANSFER_FUNDS",
-    text: "Transfer Bitcoin",
+    alt: "TRANSFER_ETH",
+    text: "Transfer Ethereum",
   },
 ];
 
@@ -124,6 +124,7 @@ interface SocialTag {
   provider: 'farcaster' | 'telegram';
   id: string | number;
   username: string;
+  
   displayName?: string;
 }
 
@@ -143,6 +144,7 @@ export default function CreateAction({ onSuccess }: CreateActionProps) {
         },
       ],
     } as ConditionGroup,
+    triggers: [],
     action: actionTypes[0],
     claimer: "",
     metadata: nounsicon[0],
@@ -243,17 +245,6 @@ export default function CreateAction({ onSuccess }: CreateActionProps) {
     []
   );
 
-  useEffect(() => {
-    if (activeSuggestionIndex !== null) {
-      const newSuggestions = generateSuggestions(
-        actionForm.triggers[activeSuggestionIndex].prompt
-      );
-      setSuggestions(newSuggestions);
-    } else {
-      setSuggestions([]);
-    }
-  }, [actionForm.triggers, activeSuggestionIndex, generateSuggestions]);
-
   const handleFundAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const regex = /^[0-9]*[.,]?[0-9]*$/;
@@ -263,41 +254,41 @@ export default function CreateAction({ onSuccess }: CreateActionProps) {
     }
   };
 
-  const handleTriggerChange = (index: number, value: string) => {
-    const newTriggers = [...actionForm.triggers];
-    newTriggers[index] = { ...newTriggers[index], prompt: value };
-    setActionForm({ ...actionForm, triggers: newTriggers });
-    setActiveSuggestionIndex(index);
-  };
+  // const handleTriggerChange = (index: number, value: string) => {
+  //   const newTriggers = [...actionForm?.triggers];
+  //   newTriggers[index] = { ...newTriggers[index], prompt: value };
+  //   setActionForm({ ...actionForm, triggers: newTriggers });
+  //   setActiveSuggestionIndex(index);
+  // };
 
-  const handleOperatorChange = (index: number, operator: 'AND' | 'OR') => {
-    const newTriggers = [...actionForm.triggers];
-    newTriggers[index] = { ...newTriggers[index], operator };
-    setActionForm({ ...actionForm, triggers: newTriggers });
-  };
+  // const handleOperatorChange = (index: number, operator: 'AND' | 'OR') => {
+  //   const newTriggers = [...actionForm.triggers];
+  //   newTriggers[index] = { ...newTriggers[index], operator };
+  //   setActionForm({ ...actionForm, triggers: newTriggers });
+  // };
 
-  const addTrigger = () => {
-    setActionForm({
-      ...actionForm,
-      triggers: [...actionForm.triggers, { prompt: "", operator: 'AND' }],
-    });
-  };
+  // const addTrigger = () => {
+  //   setActionForm({
+  //     ...actionForm,
+  //     triggers: [...actionForm.triggers, { prompt: "", operator: 'AND' }],
+  //   });
+  // };
 
-  const removeTrigger = (index: number) => {
-    const newTriggers = actionForm.triggers.filter((_, i) => i !== index);
-    setActionForm({ ...actionForm, triggers: newTriggers });
-  };
+  // const removeTrigger = (index: number) => {
+  //   const newTriggers = actionForm.triggers.filter((_, i) => i !== index);
+  //   setActionForm({ ...actionForm, triggers: newTriggers });
+  // };
 
-  const convertUSDToTRBTC = (usdAmount: string) => {
-    const rate = 0.000016;
-    const tRBTC = parseFloat(usdAmount) * rate;
-    return tRBTC.toFixed(8);
+  const convertUSDToETH = (usdAmount: string) => {
+    const rate = 0.0005;
+    const eth = parseFloat(usdAmount) * rate;
+    return eth.toFixed(8);
   };
 
   useEffect(() => {
     if (fundAmount) {
-      const tRBTC = convertUSDToTRBTC(fundAmount);
-      setTRBTCAmount(tRBTC);
+      const eth = convertUSDToETH(fundAmount);
+      setTRBTCAmount(eth);
     } else {
       setTRBTCAmount("");
     }
@@ -326,7 +317,7 @@ export default function CreateAction({ onSuccess }: CreateActionProps) {
     if (user?.verifiedCredentials) {
       const social = user.verifiedCredentials.find(
         cred => ALLOWED_SOCIAL_PROVIDERS.includes(cred.oauthProvider as any)
-      );
+      ) as any;
       
       if (social) {
         setConnectedSocialTag({
@@ -438,7 +429,18 @@ export default function CreateAction({ onSuccess }: CreateActionProps) {
       }
 
       setActionForm({
-        triggers: [{ prompt: "", operator: 'AND' }],
+        conditionGroup: {
+          id: 'root',
+          type: 'group',
+          operator: 'AND',
+          conditions: [{
+            id: crypto.randomUUID(),
+            type: 'condition',
+            prompt: '',
+            weight: 1,
+          }],
+        },
+        triggers: [],
         action: actionTypes[0],
         claimer: "",
         metadata: nounsicon[0],
@@ -805,9 +807,9 @@ export default function CreateAction({ onSuccess }: CreateActionProps) {
   };
 
   // Check if any social account is connected
-  const hasSocialConnected = user?.verifiedCredentials?.some(
-    cred => cred.provider === 'farcaster'
-  );
+  // const hasSocialConnected = user?.verifiedCredentials?.some(
+  //   (cred: { oauthProvider: string }) => cred.oauthProvider === 'farcaster'
+  // );
 
   // Update the form rendering
   const renderForm = () => (

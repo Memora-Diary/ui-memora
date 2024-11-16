@@ -131,7 +131,14 @@ const nodeTypes = {
   trigger: TriggerNode,
 };
 
-export default function ActiveLegacy() {
+interface ActiveLegacyProps {
+  nftDetails: NFTData[];
+  isLoading: boolean;
+  setNftDetails: (nftDetails: NFTData[]) => void;
+  onRefresh: () => Promise<void>;
+}
+
+export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onRefresh }: ActiveLegacyProps) {
   const {
     writeContract,
     data: hash,
@@ -293,7 +300,7 @@ export default function ActiveLegacy() {
   };
 
   // Move the transformer function inside the component
-  const transformNFTData = useCallback((nftData: NFTData[]): TransformedNFTData[] => {
+  const transformNFTData = useCallback((nftData: NFTData[]): any[] => {
     return nftData.map(nft => ({
       id: nft.id.toString(),
       image: nft.image,
@@ -309,8 +316,7 @@ export default function ActiveLegacy() {
     }));
   }, []);
 
-  // Update state declaration to use TransformedNFTData
-  const [nftDetails, setNftDetails] = useState<TransformedNFTData[]>([]);
+  // Update state declaration to use any
 
   // Update the effect that fetches NFT details
   useEffect(() => {
@@ -387,7 +393,7 @@ export default function ActiveLegacy() {
 
   
   // Update the getNodesAndEdges function to position nodes better
-  const getNodesAndEdges = useCallback((nfts: TransformedNFTData[]) => {
+  const getNodesAndEdges = useCallback((nfts: any[]) => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
@@ -404,7 +410,7 @@ export default function ActiveLegacy() {
       };
     };
 
-    nfts.forEach((nft, index) => {
+    nfts.forEach((nft: any, index: number) => {
       // Create Heirary node with more horizontal spacing
       const memoraNode: Node = {
         id: `heirary-${nft.id}`,
@@ -418,7 +424,7 @@ export default function ActiveLegacy() {
       nodes.push(memoraNode);
 
       // Create trigger nodes and edges
-      nft.triggers.forEach((trigger, triggerIndex) => {
+      nft.triggers.forEach((trigger: any, triggerIndex: number) => {
         const triggerId = `trigger-${nft.id}-${triggerIndex}`;
         nodes.push({
           id: triggerId,
@@ -450,8 +456,6 @@ export default function ActiveLegacy() {
           labelBgStyle: { 
             fill: '#18181b',
             fillOpacity: 0.7,
-            rx: 4,
-            ry: 4,
           },
         });
       });
@@ -484,7 +488,7 @@ export default function ActiveLegacy() {
 
   // Add connection handler
   const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection | Edge) => setEdges((eds: Edge[]) => addEdge(params, eds)),
     [setEdges]
   );
 
@@ -532,7 +536,7 @@ export default function ActiveLegacy() {
 
         {isMobile ? (
           <div className="flex flex-row flex-wrap gap-5 justify-center">
-            {nftDetails.map((item, i) => (
+            {nftDetails.map((item: any, i: number) => (
               <article
                 key={i}
                 className="block rounded-2.5xl border border-lisabona-100 bg-white p-[1.1875rem] transition-shadow hover:shadow-lg dark:border-lisabona-700 dark:bg-lisabona-700"
@@ -570,7 +574,7 @@ export default function ActiveLegacy() {
                     Triggers:
                   </span>
                   <div className="mt-2 space-y-2">
-                    {item.triggers.map((trigger, index) => (
+                    {item.triggers.map((trigger: { condition: string; status: boolean, operator: string }, index: number) => (
                       <div 
                         key={index}
                         className={`p-2 rounded ${
@@ -610,13 +614,13 @@ export default function ActiveLegacy() {
                     <div className="w-full flex justify-end">
                       <div className="flex flex-row items-center gap-1">
                         <span className="text-white">
-                          {item.balance ? formatEther(item.balance) : "0"} RBTC
+                          {item.balance ? formatEther(item.balance) : "0"} ETH
                         </span>
                         <Image
                           width={30}
                           height={30}
-                          alt="btc"
-                          src={"https://i.postimg.cc/cJyjRjgb/btc.webp"}
+                          alt="eth"
+                          src="/img/ethereum-eth-logo.svg"
                         />
                       </div>
                     </div>
@@ -681,7 +685,7 @@ export default function ActiveLegacy() {
                 <Background />
                 <Controls />
                 <MiniMap 
-                  nodeColor={(node) => {
+                  nodeColor={(node: any) => {
                     if (node.type === 'trigger') {
                       return node.data.status ? '#22c55e' : '#ef4444';
                     }

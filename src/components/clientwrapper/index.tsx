@@ -156,7 +156,7 @@ export const dynamicConfig = {
   environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID || "",
   walletConnectors: [EthereumWalletConnectors],
   overrides: { evmNetworks },
-  socialProvidersFilter: (_providers: string[]) => ALLOWED_SOCIAL_PROVIDERS,
+  // socialProvidersFilter: (_providers: string[]) => ALLOWED_SOCIAL_PROVIDERS,
 };
 
 export default function ClientWrapper({

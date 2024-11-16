@@ -22,7 +22,7 @@ export default function NftAction({
   
   const { primaryWallet } = useDynamicContext();
 
-  const chain = primaryWallet?.getNetwork()
+  const chain = primaryWallet?.getNetwork() as any
 
   console.log("chain", chain)
 
@@ -45,9 +45,9 @@ export default function NftAction({
       <div id="card-content" className="flex flex-col gap-y-5">
         <div className="flex flex-row justify-between">
           <h1 className="text-white py-1 justify-start">Heirary NFT</h1>
-          <p className="rounded-xl bg-[#FF9100] text-lisabona-900 px-2 py-1 text-center">
+          {/* <p className="rounded-xl bg-[#FF9100] text-lisabona-900 px-2 py-1 text-center">
             {chain?.name || 'Unknown Network'}
-          </p>
+          </p> */}
         </div>
 
         <div className="flex flex-row gap-3">
