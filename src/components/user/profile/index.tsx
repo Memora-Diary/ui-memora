@@ -7,7 +7,7 @@ import { useSocial } from "@/context/SocialContext";
 
 export default function Profile() {
   const { setShowAuthFlow } = useDynamicContext();
-  const { connectedSocial, socialData, updateSocialData } = useSocial();
+  const { connectedSocial, socialData } = useSocial();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     displayName: '',
@@ -36,7 +36,7 @@ export default function Profile() {
   };
 
   const handleSave = () => {
-    updateSocialData({
+({
       displayName: editForm.displayName,
       bio: editForm.bio,
       username: editForm.username
@@ -69,7 +69,7 @@ export default function Profile() {
                 alt="user avatar"
                 className="rounded-xl border-[5px] border-white dark:border-lisabona-600"
               />
-              {(connectedSocial.farcaster || connectedSocial.telegram) && (
+              {(connectedSocial.provider === 'farcaster' || connectedSocial.provider === 'telegram') && (
                 <div
                   className="absolute -right-2 -bottom-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-green dark:border-lisabona-600"
                   data-tippy-content={`Verified ${socialData?.provider} User`}
