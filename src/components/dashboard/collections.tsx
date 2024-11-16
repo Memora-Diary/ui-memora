@@ -12,12 +12,11 @@ type TabType = "active" | "inherited" | "notifications";
 
 interface CollectionsProps {
   nftDetails: NFTData[];
-  setNftDetails: (nftDetails: NFTData[]) => void;
   isLoading: boolean;
   onRefresh: () => Promise<void>;
 }
 
-const Collections = React.memo(({ nftDetails, isLoading, onRefresh }: CollectionsProps) => {
+const CollectionsComponent = ({ nftDetails, isLoading, onRefresh }: CollectionsProps) => {
   const [activeTab, setActiveTab] = useState<TabType>("active");
   const [previousTab, setPreviousTab] = useState<TabType>("active");
   const { primaryWallet } = useDynamicContext();
@@ -114,6 +113,9 @@ const Collections = React.memo(({ nftDetails, isLoading, onRefresh }: Collection
       </div>
     </div>
   );
-});
+};
+
+const Collections = React.memo(CollectionsComponent);
+Collections.displayName = 'Collections';
 
 export default Collections;

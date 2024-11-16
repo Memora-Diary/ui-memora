@@ -658,7 +658,6 @@ export default function ActiveLegacy({ nftDetails, isLoading, onRefresh }: Activ
           <div className="max-h-[80vh] overflow-y-auto w-full lg:w-[800px]">
             <CreateAction onSuccess={() => {
               setIsCreateModalOpen(false);
-              refreshNFTs();
             }} />
           </div>
         </Modal>
