@@ -17,7 +17,7 @@ interface CollectionsProps {
   onRefresh: () => Promise<void>;
 }
 
-export default function Collections({ nftDetails, setNftDetails, isLoading, onRefresh }: CollectionsProps) {
+const Collections = React.memo(({ nftDetails, isLoading, onRefresh }: CollectionsProps) => {
   const [activeTab, setActiveTab] = useState<TabType>("active");
   const [previousTab, setPreviousTab] = useState<TabType>("active");
   const { primaryWallet } = useDynamicContext();
@@ -105,7 +105,6 @@ export default function Collections({ nftDetails, setNftDetails, isLoading, onRe
         {activeTab === "active" && (
           <ActiveLegacy 
             nftDetails={nftDetails}
-            setNftDetails={setNftDetails}
             isLoading={isLoading}
             onRefresh={onRefresh}
           />
@@ -115,4 +114,6 @@ export default function Collections({ nftDetails, setNftDetails, isLoading, onRe
       </div>
     </div>
   );
-}
+});
+
+export default Collections;

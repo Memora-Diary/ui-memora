@@ -34,7 +34,7 @@ import { NFTData, RawNFTData } from "./types/ActiveLegacyTypes";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "@/components/modal";
 import { useSocial } from "@/context/SocialContext";
-import { DollarSign, RefreshCcw } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import CreateAction from "./CreateAction";
 
 // Add this utility function at the top of the file (outside component)
@@ -103,19 +103,19 @@ const CustomNode = React.memo(({ data }: { data: any }) => {
             Heirary #{data.id}
           </div>
           <div className="text-sm text-lisabona-500 dark:text-lisabona-300">
-            {actionTypes[data.action].text}
+            {actionTypes[data.action]?.text}
           </div>
         </div>
       </div>
 
       {data.balance && (
         <div className="mt-2 text-sm text-lisabona-500 dark:text-lisabona-300 flex items-center justify-end gap-1">
-          <span>{formatEther(data.balance)} RBTC</span>
+          <span>{formatEther(data.balance)} ETH</span>
           <Image
             width={20}
             height={20}
-            alt="btc"
-            src="https://i.postimg.cc/cJyjRjgb/btc.webp"
+            alt="eth"
+            src="https://i.postimg.cc/cJyjRjgb/eth.webp"
           />
         </div>
       )}
@@ -134,11 +134,10 @@ const nodeTypes = {
 interface ActiveLegacyProps {
   nftDetails: NFTData[];
   isLoading: boolean;
-  setNftDetails: (nftDetails: NFTData[]) => void;
   onRefresh: () => Promise<void>;
 }
 
-export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onRefresh }: ActiveLegacyProps) {
+export default function ActiveLegacy({ nftDetails, isLoading, onRefresh }: ActiveLegacyProps) {
   const {
     writeContract,
     data: hash,
@@ -172,15 +171,6 @@ export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onR
   );
 
   const { address } = useAccount();
-
-  const { data: nftIds } = useReadContract({
-    address: checksumAddress,
-    abi: MemoraABI,
-    functionName: "getNFTsMintedByOwner",
-    args: [address as Address],
-  });
-
-  console.log(nftIds, "nftIds");
 
 
   // Function to convert USD to tRBTC (mock conversion)
@@ -254,41 +244,7 @@ export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onR
     }
   };
 
-  // Fetch NFT details for each ID
-  const fetchNFTDetails = async (id: bigint): Promise<NFTData | null> => {
-    try {
-      const result = (await readContract(wagmiConfig, {
-        address: checksumAddress,
-        abi: MemoraABI,
-        functionName: "tokenInfo",
-        args: [id],
-      })) as RawNFTData;
-
-      const response = await fetch(result[9]);
-      const metadata = await response.json();
-
-      if (result) {
-        return {
-          id,
-          judge: result[0],
-          heir: result[1],
-          isTriggerDeclared: result[2],
-          isHeirSigned: result[3],
-          minter: result[4],
-          prompt: result[5],
-          actions: result[6],
-          triggerTimestamp: result[7],
-          balance: result[8],
-          uri: result[9],
-          image: metadata.image,
-        };
-      }
-    } catch (error) {
-      console.error(`Error fetching details for NFT ${id}:`, error);
-    }
-    return null;
-  };
-
+ 
   // Regex to validate input is a valid number (supports integers and decimals)
   const handleFundAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -301,66 +257,30 @@ export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onR
 
   // Move the transformer function inside the component
   const transformNFTData = useCallback((nftData: NFTData[]): any[] => {
-    return nftData.map(nft => ({
-      id: nft.id.toString(),
-      image: nft.image,
-      triggers: parseConditions(nft.prompt),
-      action: nft.actions,
-      balance: nft.balance,
-      heir: nft.heir,
-      isHeirSigned: nft.isHeirSigned,
-      isTriggerDeclared: nft.isTriggerDeclared,
-      judge: nft.judge,
-      minter: nft.minter,
-      triggerTimestamp: nft.triggerTimestamp,
-    }));
+    return nftData.map(nft => {
+      const triggers = parseConditions(nft.prompt);
+      return {
+        id: nft.id.toString(),
+        image: nft.image,
+        triggers: triggers.length > 0 ? triggers : [{
+          condition: nft.prompt,
+          status: true,
+          weight: 1,
+        }],
+        action: nft.actions,
+        balance: nft.balance,
+        heir: nft.heir,
+        isHeirSigned: nft.isHeirSigned,
+        isTriggerDeclared: nft.isTriggerDeclared,
+        judge: nft.judge,
+        minter: nft.minter,
+        triggerTimestamp: nft.triggerTimestamp,
+      };
+    });
   }, []);
 
   // Update state declaration to use any
 
-  // Update the effect that fetches NFT details
-  useEffect(() => {
-    const fetchAllNFTDetails = async () => {
-      if (nftIds && Array.isArray(nftIds)) {
-        const details: NFTData[] = [];
-        for (const id of nftIds) {
-          const nftData = await fetchNFTDetails(id);
-          if (nftData) {
-            details.push(nftData);
-          }
-        }
-        // Transform the data before setting it
-        const transformedData = transformNFTData(details);
-        setNftDetails(transformedData);
-      }
-    };
-    fetchAllNFTDetails();
-  }, [nftIds, checksumAddress, transformNFTData]);
-
-  const refreshNFTs = async () => {
-    const toastId = toast.loading("Refreshing NFTs...");
-    try {
-      // Manually fetch the NFT IDs
-      const newNftIds = await readContract(wagmiConfig, {
-        address: checksumAddress,
-        abi: MemoraABI,
-        functionName: "getNFTsMintedByOwner",
-        args: [address as Address],
-      });
-
-      // Fetch details for the new NFT IDs
-      if (newNftIds && Array.isArray(newNftIds)) {
-        const details = await Promise.all(
-          newNftIds.map((id) => fetchNFTDetails(id))
-        );
-        setNftDetails(details.filter((data): data is NFTData => data !== null));
-      }
-      toast.success("NFTs refreshed successfully!", { id: toastId });
-    } catch (error) {
-      console.error("Error refreshing NFTs:", error);
-      toast.error("Failed to refresh NFTs", { id: toastId });
-    }
-  };
 
   // Open the modal with the selected token ID
   const openModal = (tokenId: any) => {
@@ -424,7 +344,7 @@ export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onR
       nodes.push(memoraNode);
 
       // Create trigger nodes and edges
-      nft.triggers.forEach((trigger: any, triggerIndex: number) => {
+      nft?.triggers?.forEach((trigger: any, triggerIndex: number) => {
         const triggerId = `trigger-${nft.id}-${triggerIndex}`;
         nodes.push({
           id: triggerId,
@@ -494,10 +414,13 @@ export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onR
 
   // Update the effect that sets nodes and edges
   useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = getNodesAndEdges(nftDetails);
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }, [nftDetails, getNodesAndEdges]);
+    if (nftDetails && nftDetails.length > 0) {
+      const transformedData = transformNFTData(nftDetails);
+      const { nodes: newNodes, edges: newEdges } = getNodesAndEdges(transformedData);
+      setNodes(newNodes);
+      setEdges(newEdges);
+    }
+  }, [nftDetails, getNodesAndEdges, transformNFTData]);
 
   // Add a safe check helper function
   const getActionText = (actionId: number) => {
@@ -508,31 +431,7 @@ export default function ActiveLegacy({ nftDetails, setNftDetails, isLoading, onR
   return (
     <div>
       <div className="flex flex-col flex-wrap justify-center">
-        <div className="flex flex-row text-center justify-end m-0 pb-5 gap-2">
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="p-2 bg-accent text-white rounded-lg hover:bg-accent-dark flex flex-row gap-1"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="24"
-              height="24"
-              className="h-5 w-5 fill-current"
-            >
-              <path fill="none" d="M0 0h24v24H0z" />
-              <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" />
-            </svg>
-            Create Heirary
-          </button>
-          <button
-            onClick={() => refreshNFTs()}
-            className="p-2 bg-blue text-white rounded-lg hover:bg-opacity-70 flex flex-row gap-1"
-          >
-            <RefreshCcw />
-            Refresh
-          </button>
-        </div>
+  
 
         {isMobile ? (
           <div className="flex flex-row flex-wrap gap-5 justify-center">

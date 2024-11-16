@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Headers from "@/components/headers";
 import Footers from "@/components/footers";
 import Collections from "@/components/dashboard/collections";
@@ -14,6 +14,7 @@ import { NFTData, RawNFTData } from "@/components/dashboard/types/ActiveLegacyTy
 import Modal from "@/components/modal";
 import CreateAction from "@/components/dashboard/CreateAction";
 import toast from "react-hot-toast";
+import { DollarSign, RefreshCcw } from "lucide-react";
 
 // Add utility function for conversion
 const convertETHToUSD = (ethWei: bigint | number): number => {
@@ -54,8 +55,11 @@ export default function Dashboard() {
     args: [address as Address],
   });
 
+  // Add a ref to track initial load
+  const initialLoadRef = useRef(false);
+  
   // Fetch NFT details function
-  const fetchNFTDetails = async (id: bigint): Promise<NFTData | null> => {
+  const fetchNFTDetails = useCallback(async (id: bigint): Promise<NFTData | null> => {
     try {
       const result = (await readContract(wagmiConfig, {
         address: checksumAddress,
@@ -87,9 +91,9 @@ export default function Dashboard() {
       console.error(`Error fetching details for NFT ${id}:`, error);
     }
     return null;
-  };
+  }, [checksumAddress]);
   
-  const refreshNFTs = async () => {
+  const refreshNFTs = useCallback(async () => {
     const toastId = toast.loading("Refreshing workflows...");
     setIsLoading(true);
     try {
@@ -98,7 +102,18 @@ export default function Dashboard() {
         const details = await Promise.all(
           nftIds.map((id) => fetchNFTDetails(id))
         );
-        setNftDetails(details.filter((data): data is NFTData => data !== null));
+        const filteredDetails = details.filter((data): data is NFTData => data !== null);
+        setNftDetails(prevDetails => {
+          // Convert BigInt values to strings before comparison
+          const stringifyWithBigInt = (obj: any) => {
+            return JSON.stringify(obj, (_, value) =>
+              typeof value === 'bigint' ? value.toString() : value
+            );
+          };
+          
+          const hasChanged = stringifyWithBigInt(prevDetails) !== stringifyWithBigInt(filteredDetails);
+          return hasChanged ? filteredDetails : prevDetails;
+        });
       }
       toast.success("Workflows refreshed successfully!", { id: toastId });
     } catch (error) {
@@ -107,12 +122,15 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false);
     }
-  };
-  // Move refreshNFTs inside useEffect or use useCallback
-  useEffect(() => {
-
-    refreshNFTs();
   }, [nftIds, refetch, fetchNFTDetails]);
+
+  // Update the main useEffect to use initialLoadRef
+  useEffect(() => {
+    if (!initialLoadRef.current && nftIds && Array.isArray(nftIds)) {
+      initialLoadRef.current = true;
+      refreshNFTs();
+    }
+  }, [nftIds, refreshNFTs]);
 
   // Calculate stats
   const stats = {
@@ -170,6 +188,7 @@ export default function Dashboard() {
     }
   ];
 
+
   return (
     <>
       <Headers />
@@ -192,6 +211,15 @@ export default function Dashboard() {
                 </svg>
                 Create Workflow
               </button>
+
+              
+              <button
+            onClick={() => refreshNFTs()}
+            className="p-2 bg-blue text-white rounded-lg hover:bg-opacity-70 flex flex-row gap-1"
+          >
+            <RefreshCcw />
+            Refresh
+          </button>
             </div>
           </div>
 
@@ -219,7 +247,6 @@ export default function Dashboard() {
             {connectedSocials || true ? (
               <Collections 
                 nftDetails={nftDetails} 
-                setNftDetails={setNftDetails}
                 isLoading={isLoading}
                 onRefresh={refreshNFTs}
               />
@@ -233,6 +260,7 @@ export default function Dashboard() {
                 >
                   Connect Account
                 </button>
+                
               </div>
             )}
           </div>
