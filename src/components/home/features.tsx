@@ -1,70 +1,79 @@
 "use client";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
-import { service2 } from "@/data/service";
+import { useState } from "react";
 import Image from "next/image";
 
+const features = [
+  {
+    id: "conditions",
+    title: "Complex Conditions",
+    description: "Build sophisticated multi-condition workflows using AND/OR logic, time-based triggers, and smart contract events.",
+    image: "/img/features/conditions.svg"
+  },
+  {
+    id: "ai",
+    title: "AI Monitoring",
+    description: "Our advanced AI continuously monitors multiple data sources to detect when your conditions are met.",
+    image: "/img/features/ai.svg"
+  },
+  {
+    id: "blockchain",
+    title: "Multi-Chain Support",
+    description: "Execute actions across different blockchain networks with our cross-chain integration.",
+    image: "/img/features/blockchain.svg"
+  },
+  {
+    id: "security",
+    title: "Decentralized Security",
+    description: "Your conditions and triggers are secured by blockchain technology and executable smart contracts.",
+    image: "/img/features/security.svg"
+  }
+];
+
 export default function Features() {
+  const [activeFeature, setActiveFeature] = useState(features[0].id);
+
   return (
-    <section className="py-12 lg:py-24">
-      <div className="container relative overflow-hidden xl:left-[calc((100vw-1202px)/4)] xl:max-w-[calc(1202px+((100vw-1202px)/2))] xl:pr-[calc((100vw-1176px)/2)]">
-        <div className="mx-auto mb-12 max-w-lg text-center">
-          <h2 className="mb-6 text-center font-display text-3xl font-medium text-white md:text-5xl">
-            Why Trust Memora with Your Digital Legacy
+    <section className="py-24 bg-lisabona-800">
+      <div className="container mx-auto px-4">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Powerful Features
           </h2>
-          <p className="text-lg text-jacarta-300">
-            Cutting-edge blockchain technology ensuring your digital footprint
-            is preserved, protected, and managed according to your wishes.
+          <p className="text-lg text-lisabona-200">
+            Everything you need to build and automate complex workflows
           </p>
         </div>
-        <Swiper
-          // slidesPerGroupAuto
-          modules={[Pagination, Autoplay]}
-          spaceBetween={30}
-          // slidesPerView={3}
-          autoplay={true}
-          slidesPerGroupAuto
-          slidesPerView={"auto"}
-          rewind
-          pagination={{
-            el: ".spn5",
-            clickable: true,
-          }}
-          breakpoints={{
-            420: {
-              slidesPerView: 1,
-            },
-            565: {
-              slidesPerView: 2,
-            },
-            1000: {
-              slidesPerView: 3,
-            },
-          }}
-          className="swiper card-slider-3-columns-large-gap xl:!overflow-visible"
-        >
-          {service2.map((elm, i) => (
-            <SwiperSlide key={i}>
-              <div className="rounded-2.5xl bg-jacarta-800 p-10">
-                <div className="mb-4 md:mb-0">
-                  <Image
-                    width={48}
-                    height={48}
-                    src={elm.imageSrc}
-                    className="mb-6"
-                    alt="image"
-                  />
-                  <h3 className="mb-4 font-display text-lg text-white">
-                    {elm.title}
-                  </h3>
-                  <p className="text-jacarta-300">{elm.description}</p>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
 
-        <div className=" spn5 swiper-pagination-1 mt-10 text-center"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            {features.map((feature) => (
+              <div
+                key={feature.id}
+                className={`p-6 rounded-xl cursor-pointer transition-all duration-300 ${
+                  activeFeature === feature.id
+                    ? "bg-accent/20 border border-accent"
+                    : "hover:bg-lisabona-700"
+                }`}
+                onClick={() => setActiveFeature(feature.id)}
+              >
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-lisabona-200">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-accent to-purple-600 rounded-2xl blur-2xl opacity-20" />
+            <div className="relative bg-lisabona-900 p-8 rounded-2xl border border-lisabona-700">
+              {/* Replace with actual feature preview/demo */}
+              <div className="aspect-video bg-lisabona-800 rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

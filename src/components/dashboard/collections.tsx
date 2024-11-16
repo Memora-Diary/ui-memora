@@ -1,153 +1,116 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import tippy from "tippy.js";
-import CreateAction from "./CreateAction";
-import Image from "next/image";
-import { collections } from "@/data/collections";
 import ActiveLegacy from "./ActiveLegacy";
 import Inherited from "./Inherited";
+import Notifications from "@/components/notifications";
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { isEthereumWallet } from '@dynamic-labs/ethereum';
+import { NFTData } from "./types/ActiveLegacyTypes";
 
-type TabType = "active" | "inherited" | "create";
+type TabType = "active" | "inherited" | "notifications";
 
-interface CollectionItem {
-  id: number;
-  title: string;
-  imageSrc: string;
-  altText: string;
-  details: string;
-  creationDate: string;
-  status: string;
-  type: string;
-  liked: boolean;
-  likes: number;
-  creatorAvatar: string;
-  heirAvatar: string;
-  platform: string;
-  inheritanceDate: string;
+interface CollectionsProps {
+  nftDetails: NFTData[];
+  isLoading: boolean;
+  onRefresh: () => Promise<void>;
 }
 
-export default function Collections() {
-  const [allItems, setAllItems] = useState<CollectionItem[]>(
-    collections as unknown as CollectionItem[]
-  );
-  const [activeTab, setActiveTab] = useState<TabType>("create");
+export default function Collections({ nftDetails, isLoading, onRefresh }: CollectionsProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("active");
+  const [previousTab, setPreviousTab] = useState<TabType>("active");
+  const { primaryWallet } = useDynamicContext();
 
   useEffect(() => {
     tippy("[data-tippy-content]");
   }, []);
 
+  useEffect(() => {
+    const switchNetwork = async () => {
+      if (!primaryWallet || !isEthereumWallet(primaryWallet)) return;
+
+      try {
+        if (activeTab === "notifications") {
+          await primaryWallet.switchNetwork(11155111);
+        } else if (previousTab === "notifications") {
+          await primaryWallet.switchNetwork(80002);
+        }
+      } catch (error) {
+        console.error("Failed to switch network:", error);
+      }
+    };
+
+    switchNetwork();
+  }, [activeTab, previousTab, primaryWallet]);
+
   const handleTabClick = (tab: TabType) => {
+    setPreviousTab(activeTab);
     setActiveTab(tab);
   };
 
-  return (
-    <section className="relative py-24 pt-20">
-      <picture className="pointer-events-none absolute inset-0 -z-10 dark:hidden">
-        <Image
-          width={1920}
-          height={789}
-          src="/img/gradient_light.jpg"
-          alt="gradient"
-          className="h-full w-full"
-        />
-      </picture>
-      <div className="container">
-        {/* Tabs Nav */}
-        <ul className="nav nav-tabs scrollbar-custom mb-5 flex items-center justify-start overflow-x-auto overflow-y-hidden border-b border-jacarta-100 pb-px dark:border-jacarta-600 md:justify-center">
-          <li className="nav-item" role="presentation">
-            <button
-              className={`nav-link relative flex items-center whitespace-nowrap py-3 px-6 ${
-                activeTab === "create"
-                  ? "active text-jacarta-700 dark:text-white"
-                  : "text-jacarta-400 hover:text-jacarta-700 dark:hover:text-white"
-              }`}
-              onClick={() => handleTabClick("create")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                className="mr-1 h-5 w-5 fill-current"
-              >
-                <path fill="none" d="M0 0h24v24H0z" />
-                <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" />
-              </svg>
-              <span className="font-display text-base font-medium">
-                Create Memora NFT
-              </span>
-            </button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button
-              className={`nav-link relative flex items-center whitespace-nowrap py-3 px-6 ${
-                activeTab === "active"
-                  ? "active text-jacarta-700 dark:text-white"
-                  : "text-jacarta-400 hover:text-jacarta-700 dark:hover:text-white"
-              }`}
-              onClick={() => handleTabClick("active")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                className="mr-1 h-5 w-5 fill-current"
-              >
-                <path fill="none" d="M0 0h24v24H0z" />
-                <path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm1-8h3l-4 4-4-4h3V8h2v4z" />
-              </svg>
-              <span className="font-display text-base font-medium">
-                My Memora
-              </span>
-            </button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button
-              className={`nav-link relative flex items-center whitespace-nowrap py-3 px-6 ${
-                activeTab === "inherited"
-                  ? "active text-jacarta-700 dark:text-white"
-                  : "text-jacarta-400 hover:text-jacarta-700 dark:hover:text-white"
-              }`}
-              onClick={() => handleTabClick("inherited")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                className="mr-1 h-5 w-5 fill-current"
-              >
-                <path fill="none" d="M0 0h24v24H0z" />
-                <path d="M18 7h3a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h15v4zM4 9v10h16V9H4zm9-6v2H6V3h7z" />
-              </svg>
-              <span className="font-display text-base font-medium">
-                Inherited Memora
-              </span>
-            </button>
-          </li>
-        </ul>
+  const tabs = [
+    {
+      id: "active",
+      label: "My Workflows",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+          <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+        </svg>
+      )
+    },
+    {
+      id: "inherited",
+      label: "Inherited",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+        </svg>
+      )
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+        </svg>
+      )
+    }
+  ];
 
-        {/* Tab Content */}
-        <div className="tab-content">
-          {activeTab === "create" && (
-            <div className="tab-pane fade show active" role="tabpanel">
-              <CreateAction />
-            </div>
-          )}
-          {(activeTab === "active") && (
-            <div className="tab-pane fade show active" role="tabpanel">
-              <ActiveLegacy />
-            </div>
-          )}
-          {(activeTab === "inherited") && (
-            <div className="tab-pane fade show active" role="tabpanel">
-              <Inherited />
-            </div>
-          )}
-        </div>
+  return (
+    <div className="space-y-6">
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(tab.id as TabType)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              activeTab === tab.id
+                ? "bg-accent text-white"
+                : "bg-lisabona-700/50 text-lisabona-200 hover:bg-lisabona-700"
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
       </div>
-    </section>
+
+      {/* Content */}
+      <div className="min-h-[500px]">
+        {activeTab === "active" && (
+          <ActiveLegacy 
+            nftDetails={nftDetails}
+            isLoading={isLoading}
+            onRefresh={onRefresh}
+          />
+        )}
+        {activeTab === "inherited" && <Inherited />}
+        {activeTab === "notifications" && <Notifications />}
+      </div>
+    </div>
   );
 }

@@ -21,6 +21,10 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'ethglobal.b-cdn.net'
+            },
+            {
+                protocol: 'https',
+                hostname: 'backend-staging.epns.io'
             }
         ]
     },

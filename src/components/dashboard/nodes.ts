@@ -37,29 +37,83 @@ import { useSocial } from "@/context/SocialContext";
 import { DollarSign, RefreshCcw } from "lucide-react";
 import CreateAction from "./CreateAction";
 
-// Add this utility function at the top of the file (outside component)
-const parseConditions = (prompt: string) => {
-  // Split by AND/OR while preserving the operators
-  const parts = prompt.split(/\b(AND|OR)\b/).map(part => part.trim());
-  const triggers = [];
-  
-  for (let i = 0; i < parts.length; i += 2) {
-    const condition = parts[i];
-    const operator = parts[i + 1];
-    
-    // Skip empty conditions
-    if (!condition) continue;
-    
-    triggers.push({
-      condition,
-      status: true, // Default to true since we don't have this info
-      weight: 1 / Math.ceil(parts.length / 2), // Distribute weight evenly
-      operator: operator as 'AND' | 'OR' || undefined
-    });
+// Add this mock data at the top of the file, after imports
+const mockMemoras = [
+  {
+    id: "1",
+    image: "https://memoraapi.bitnata.com/earth.png",
+    triggers: [
+      {
+        condition: "When I get married",
+        status: true,
+        weight: 0.8,
+      },
+      {
+        condition: "When I buy a house",
+        weight: 0.4,
+        operator: "AND"
+      }
+    ],
+    action: 2, // Transfer Bitcoin
+    balance: BigInt("192000000000000"),
+    heir: "0x6E7F6b8FF026FDad80566D02D8e8CB768faEA910",
+    isHeirSigned: false,
+    isTriggerDeclared: false,
+    judge: "0x843E73b0143F4A7DeBF05a9646917787B06f3A46",
+    minter: "0x399F56CD72CA88f3873b3698A395083A44a9A641",
+    triggerTimestamp: BigInt(0),
+  },
+  {
+    id: "2",
+    image: "https://memoraapi.bitnata.com/earth.png",
+    triggers: [
+      {
+        condition: "When I pass away",
+        status: false,
+        weight: 1.0,
+      }
+    ],
+    action: 0, // Manage Account
+    balance: BigInt(0),
+    heir: "0x7F6b8FF026FDad80566D02D8e8CB768faEA910ab",
+    isHeirSigned: false,
+    isTriggerDeclared: false,
+    judge: "0x843E73b0143F4A7DeBF05a9646917787B06f3A46",
+    minter: "0x399F56CD72CA88f3873b3698A395083A44a9A641",
+    triggerTimestamp: BigInt(0),
+  },
+  {
+    id: "3",
+    image: "https://memoraapi.bitnata.com/earth.png",
+    triggers: [
+      {
+        condition: "When I get a promotion",
+        status: true,
+        weight: 0.6,
+      },
+      {
+        condition: "When I receive a bonus",
+        status: true,
+        weight: 0.3,
+        operator: "OR"
+      },
+      {
+        condition: "When I complete 5 years at the company",
+        status: false,
+        weight: 0.1,
+        operator: "AND"
+      }
+    ],
+    action: 1, // Close Account
+    balance: BigInt(0),
+    heir: "0x8FF026FDad80566D02D8e8CB768faEA910ab7F6b",
+    isHeirSigned: false,
+    isTriggerDeclared: false,
+    judge: "0x843E73b0143F4A7DeBF05a9646917787B06f3A46",
+    minter: "0x399F56CD72CA88f3873b3698A395083A44a9A641",
+    triggerTimestamp: BigInt(0),
   }
-  
-  return triggers;
-};
+];
 
 // First, let's create a separate TriggerNode component
 const TriggerNode = React.memo(({ data }: { data: any }) => {
@@ -142,13 +196,13 @@ export default function ActiveLegacy() {
 
   const { socialData } = useSocial();
   // State management
+  const [nftDetails] = useState(mockMemoras);
   const [tRBTCAmount, setTRBTCAmount] = useState("");
   const [fundAmount, setFundAmount] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
 
   // Track the transaction confirmation state
   const {
@@ -292,44 +346,22 @@ export default function ActiveLegacy() {
     }
   };
 
-  // Move the transformer function inside the component
-  const transformNFTData = useCallback((nftData: NFTData[]): TransformedNFTData[] => {
-    return nftData.map(nft => ({
-      id: nft.id.toString(),
-      image: nft.image,
-      triggers: parseConditions(nft.prompt),
-      action: nft.actions,
-      balance: nft.balance,
-      heir: nft.heir,
-      isHeirSigned: nft.isHeirSigned,
-      isTriggerDeclared: nft.isTriggerDeclared,
-      judge: nft.judge,
-      minter: nft.minter,
-      triggerTimestamp: nft.triggerTimestamp,
-    }));
-  }, []);
-
-  // Update state declaration to use TransformedNFTData
-  const [nftDetails, setNftDetails] = useState<TransformedNFTData[]>([]);
-
-  // Update the effect that fetches NFT details
   useEffect(() => {
     const fetchAllNFTDetails = async () => {
       if (nftIds && Array.isArray(nftIds)) {
-        const details: NFTData[] = [];
+        const details: NFTData[] | null = [];
         for (const id of nftIds) {
-          const nftData = await fetchNFTDetails(id);
+          const nftData: NFTData | null = await fetchNFTDetails(id);
+          console.log(nftData, "nftData");
           if (nftData) {
             details.push(nftData);
           }
         }
-        // Transform the data before setting it
-        const transformedData = transformNFTData(details);
-        setNftDetails(transformedData);
+        setNftDetails(details);
       }
     };
     fetchAllNFTDetails();
-  }, [nftIds, checksumAddress, transformNFTData]);
+  }, [nftIds, checksumAddress]);
 
   const refreshNFTs = async () => {
     const toastId = toast.loading("Refreshing NFTs...");
@@ -385,9 +417,8 @@ export default function ActiveLegacy() {
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
-  
   // Update the getNodesAndEdges function to position nodes better
-  const getNodesAndEdges = useCallback((nfts: TransformedNFTData[]) => {
+  const getNodesAndEdges = useCallback((nfts: typeof mockMemoras) => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
@@ -495,12 +526,6 @@ export default function ActiveLegacy() {
     setEdges(newEdges);
   }, [nftDetails, getNodesAndEdges]);
 
-  // Add a safe check helper function
-  const getActionText = (actionId: number) => {
-    const action = actionTypes.find(a => a.id === actionId);
-    return action?.text || 'Unknown Action';
-  };
-
   return (
     <div>
       <div className="flex flex-col flex-wrap justify-center">
@@ -531,6 +556,7 @@ export default function ActiveLegacy() {
         </div>
 
         {isMobile ? (
+          // Original card view for mobile
           <div className="flex flex-row flex-wrap gap-5 justify-center">
             {nftDetails.map((item, i) => (
               <article
@@ -556,45 +582,29 @@ export default function ActiveLegacy() {
                     </span>
                   </div>
                   {item.isTriggerDeclared ? (
-                    <p className="rounded-xl bg-orange text-lisabona-900 px-2 py-1 text-center text-sm">
+                    <p className=" rounded-xl bg-orange text-lisabona-900 px-2 py-1 text-center text-sm">
                       Triggered
                     </p>
                   ) : (
-                    <p className="rounded-xl bg-green text-lisabona-900 px-2 py-1 text-center text-sm">
+                    <p className=" rounded-xl bg-green text-lisabona-900 px-2 py-1 text-center text-sm">
                       Live
                     </p>
                   )}
                 </div>
                 <div className="mt-2 text-sm">
                   <span className="mr-1 text-lisabona-700 dark:text-lisabona-200">
-                    Triggers:
+                    Prompt:
                   </span>
-                  <div className="mt-2 space-y-2">
-                    {item.triggers.map((trigger, index) => (
-                      <div 
-                        key={index}
-                        className={`p-2 rounded ${
-                          trigger.status ? 'bg-green-500/20' : 'bg-red-500/20'
-                        }`}
-                      >
-                        <p className="text-lisabona-500 dark:text-lisabona-300">
-                          {trigger.condition}
-                          {trigger.operator && (
-                            <span className="ml-1 text-xs opacity-70">
-                              ({trigger.operator})
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                  <span className="text-lisabona-500 dark:text-lisabona-300">
+                    {item.prompt}
+                  </span>
                 </div>
                 <div className="mt-2 text-sm">
                   <span className="mr-1 text-lisabona-700 dark:text-lisabona-200">
                     Action:
                   </span>
                   <span className="text-lisabona-500 dark:text-lisabona-300">
-                    {getActionText(item.action)}
+                    {actionTypes[item.actions].text}
                   </span>
                 </div>
                 <div className="mt-2 text-sm max-w-xs">
@@ -605,7 +615,7 @@ export default function ActiveLegacy() {
                     {item.heir}
                   </span>
                 </div>
-                {getActionText(item.action) === "Transfer Bitcoin" && (
+                {actionTypes[item.actions].text === "Transfer Bitcoin" && (
                   <>
                     <div className="w-full flex justify-end">
                       <div className="flex flex-row items-center gap-1">
@@ -626,14 +636,14 @@ export default function ActiveLegacy() {
                         <div className="group flex items-center w-full">
                           <button
                             onClick={() => openModal(item.id)}
-                            className="inline-block w-full rounded-full bg-green py-3 px-8 text-center font-semibold text-white transition-all hover:bg-accent-dark"
+                            className={`inline-block w-full rounded-full bg-green py-3 px-8 text-center font-semibold text-white transition-all hover:bg-accent-dark`}
                           >
                             Add Funds
                           </button>
                         </div>
                       </div>
                     )}
-                    {item.isTriggerDeclared && (
+                    {item.isTriggerDeclared ? (
                       <div className="mt-5 flex items-center">
                         <div className="group flex items-center w-full">
                           <button
@@ -651,7 +661,7 @@ export default function ActiveLegacy() {
                           </button>
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </>
                 )}
               </article>

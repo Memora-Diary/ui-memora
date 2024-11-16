@@ -2,8 +2,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Memora',
-  description: 'Secure your digital legacy with Memora',
+  title: 'Heirary',
+  description: 'Secure your digital legacy with Heirary',
   icons: {
     icon: [
       { url: '/img/favicon.ico', sizes: 'any' },

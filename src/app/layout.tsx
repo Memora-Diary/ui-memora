@@ -6,8 +6,8 @@ import "../../public/styles/style.css";
 import ClientWrapper from "@/components/clientwrapper";
 
 export const metadata: Metadata = {
-  title: 'Memora',
-  description: 'Secure your digital legacy with Memora',
+  title: 'Heirary',
+  description: 'Secure your digital legacy with Heirary',
   icons: {
     icon: [
       { url: '/img/favicon.ico' },
@@ -35,7 +35,7 @@ export default function RootLayout({
       <body
         itemScope
         itemType="http://schema.org/WebPage"
-        className="overflow-x-hidden font-body text-jacarta-500 dark:bg-jacarta-900"
+        className="overflow-x-hidden font-body text-lisabona-500 dark:bg-lisabona-900"
       >
         <ClientWrapper>
           {children}

@@ -176,7 +176,7 @@ export default function Inherited() {
         {nftDetails.map((item, i) => (
           <article
             key={i}
-            className="block rounded-2.5xl border border-jacarta-100 bg-white p-[1.1875rem] transition-shadow hover:shadow-lg dark:border-jacarta-700 dark:bg-jacarta-700"
+            className="block rounded-2.5xl border border-lisabona-100 bg-white p-[1.1875rem] transition-shadow hover:shadow-lg dark:border-lisabona-700 dark:bg-lisabona-700"
           >
             <figure className="relative">
               <div>
@@ -184,7 +184,7 @@ export default function Inherited() {
                   width={230}
                   height={230}
                   src={item.image || nounsicon[0].imageSrc}
-                  alt={`memora#${item.id}`}
+                  alt={`heirary#${item.id}`}
                   className="w-full rounded-[0.625rem]"
                   loading="lazy"
                 />
@@ -192,47 +192,47 @@ export default function Inherited() {
             </figure>
             <div className="mt-7 flex items-center justify-between">
               <div>
-                <span className="font-display text-base text-jacarta-700 hover:text-accent dark:text-white">
-                  {`memora #${item.id}`}
+                <span className="font-display text-base text-lisabona-700 hover:text-accent dark:text-white">
+                  {`heirary #${item.id}`}
                 </span>
               </div>
-              {/* {item.isTriggerDeclared ? <p className=" rounded-xl bg-orange text-jacarta-900 px-2 py-1 text-center text-sm">Triggered</p> : 
-                        <p className=" rounded-xl bg-blue text-jacarta-900 px-2 py-1 text-center text-sm">Pending</p>} */}
+              {/* {item.isTriggerDeclared ? <p className=" rounded-xl bg-orange text-lisabona-900 px-2 py-1 text-center text-sm">Triggered</p> : 
+                        <p className=" rounded-xl bg-blue text-lisabona-900 px-2 py-1 text-center text-sm">Pending</p>} */}
               {!item.isTriggerDeclared && !item.isHeirSigned ? (
-                <p className="rounded-xl bg-blue text-jacarta-900 px-2 py-1 text-center text-sm">
+                <p className="rounded-xl bg-blue text-lisabona-900 px-2 py-1 text-center text-sm">
                   Pending
                 </p>
               ) : item.isTriggerDeclared && !item.isHeirSigned ? (
-                <p className="rounded-xl bg-orange text-jacarta-900 px-2 py-1 text-center text-sm">
+                <p className="rounded-xl bg-orange text-lisabona-900 px-2 py-1 text-center text-sm">
                   Triggered
                 </p>
               ) : (
-                <p className="rounded-xl bg-green text-jacarta-900 px-2 py-1 text-center text-sm">
+                <p className="rounded-xl bg-green text-lisabona-900 px-2 py-1 text-center text-sm">
                   Claimed
                 </p>
               )}
             </div>
             <div className="mt-2 text-sm">
-              <span className="mr-1 text-jacarta-700 dark:text-jacarta-200">
+              <span className="mr-1 text-lisabona-700 dark:text-lisabona-200">
                 Prompt:
               </span>
-              <span className="text-jacarta-500 dark:text-jacarta-300">
+              <span className="text-lisabona-500 dark:text-lisabona-300">
                 {item.prompt}
               </span>
             </div>
             <div className="mt-2 text-sm">
-              <span className="mr-1 text-jacarta-700 dark:text-jacarta-200">
+              <span className="mr-1 text-lisabona-700 dark:text-lisabona-200">
                 Action:
               </span>
-              <span className="text-jacarta-500 dark:text-jacarta-300">
+              <span className="text-lisabona-500 dark:text-lisabona-300">
                 {actionTypes[item.actions].text}
               </span>
             </div>
             <div className="mt-2 text-sm max-w-xs">
-              <span className="mr-1 text-jacarta-700 dark:text-jacarta-200">
+              <span className="mr-1 text-lisabona-700 dark:text-lisabona-200">
                 Address Inherited:
               </span>
-              <span className="text-jacarta-500 dark:text-jacarta-300 break-all">
+              <span className="text-lisabona-500 dark:text-lisabona-300 break-all">
                 {item.heir}
               </span>
             </div>
@@ -260,7 +260,7 @@ export default function Inherited() {
                 <div className="group flex items-center w-full">
                   <button
                     onClick={() => handleClaimNFT(item.id)}
-                    className="font-display text-sm font-semibold group-hover:text-white dark:text-jacarta-700 bg-accent hover:bg-opacity-35 rounded-lg p-2"
+                    className="font-display text-sm font-semibold group-hover:text-white dark:text-lisabona-700 bg-accent hover:bg-opacity-35 rounded-lg p-2"
                   >
                     Claim NFT
                   </button>

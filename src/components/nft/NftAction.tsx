@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { Nouns } from "../dashboard/types/CreateActionTypes";
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+
 interface NftActionProps {
   metadata: Nouns;
   dataFarcaster: any | null;
@@ -17,8 +19,18 @@ export default function NftAction({
   isConfirming,
   hash,
 }: NftActionProps) {
+  
+  const { primaryWallet } = useDynamicContext();
+
+  const chain = primaryWallet?.getNetwork()
+
+  console.log("chain", chain)
+
+  // from the user I want to get the chain that hes connected
+
+
   return (
-    <div className=" bg-jacarta-700 h-fit w-full rounded-xl p-10 flex flex-col gap-y-10">
+    <div className=" bg-lisabona-700 h-fit w-full rounded-xl p-10 flex flex-col gap-y-10">
       <div className="rounded-xl   h-fit w-full block">
         <Image
           alt="nft-action"
@@ -32,9 +44,9 @@ export default function NftAction({
 
       <div id="card-content" className="flex flex-col gap-y-5">
         <div className="flex flex-row justify-between">
-          <h1 className="text-white py-1 justify-start">Memora NFT</h1>
-          <p className=" rounded-xl bg-[#FF9100] text-jacarta-900  px-2 py-1 text-center">
-            RSK Testnet
+          <h1 className="text-white py-1 justify-start">Heirary NFT</h1>
+          <p className="rounded-xl bg-[#FF9100] text-lisabona-900 px-2 py-1 text-center">
+            {chain?.name || 'Unknown Network'}
           </p>
         </div>
 
@@ -76,12 +88,12 @@ export default function NftAction({
           {hash && isConfirming && (
             <div className="pt-3">
               <a
-                href={`https://explorer.testnet.rootstock.io/tx/${hash}`}
-                className=" hover:text-accent text-white mt-5"
+                href={`${chain?.blockExplorers?.default?.url}/tx/${hash}`}
+                className="hover:text-accent text-white mt-5"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                View on Roostock exlporer
+                View on {chain?.blockExplorers?.default?.name || 'block explorer'}
               </a>
             </div>
           )}

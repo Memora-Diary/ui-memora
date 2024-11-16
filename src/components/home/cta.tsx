@@ -48,44 +48,17 @@ const CallToAction: React.FC = () => {
       <section className="bg-gradient-to-r from-blue-600 to-indigo-800 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl font-extrabold text-white sm:text-5xl mb-8">
-            <span className="block">Memora: Your Digital Legacy, Secured</span>
+            <span className="block">Heirary: Your Digital Legacy, Secured</span>
             <span className="block text-indigo-200 text-2xl mt-2">
               Powered by Cutting-Edge Blockchain Technology
             </span>
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <SponsorFeature 
-              name="Nouns-Inspired Design" 
-              description="Embracing creativity with Nouns-style visuals for a unique user experience"
-              logoSrc="https://ethglobal.b-cdn.net/organizations/e3t1p/square-logo/default.png"
-            />
-            <SponsorFeature 
-              name="Dynamic" 
-              description="Effortless Web3 onboarding with MetaMask integration and seamless Farcaster connectivity"
-              logoSrc="https://ethglobal.b-cdn.net/organizations/xrzks/square-logo/default.png"
-            />
-            <SponsorFeature 
-              name="Gaia" 
-              description="AI-driven public good integration, automating legacy management with Web3 intelligence"
-              logoSrc="https://ethglobal.b-cdn.net/organizations/fxknf/square-logo/default.png"
-            />
-            <SponsorFeature 
-              name="Nethermind" 
-              description="Best AI x Blockchain Data Project, Designing AI solutions to automating legacy management"
-              logoSrc="https://ethglobal.b-cdn.net/organizations/bk5qx/square-logo/default.png"
-            />
-            <SponsorFeature 
-              name="Worldcoin" 
-              description="Enhance security with real-world identity verification, ensuring authentic digital legacies"
-              logoSrc="https://ethglobal.b-cdn.net/organizations/3zpxc/square-logo/default.png"
-            />
-          </div>
 
           <div className="bg-white/20 p-6 rounded-lg shadow-lg mb-12">
             <h3 className="text-2xl font-bold text-white mb-4">Rootstock</h3>
             <p className="text-white mb-4">Secure your digital legacy on Bitcoin robust L2 network with full EVM compatibility</p>
-            <Image src="https://ethglobal.b-cdn.net/organizations/ggpyp/square-logo/default.png" alt="Nouns-Inspired Memora Art" width={200} height={200} className="mx-auto rounded-lg" />
+            <Image src="https://ethglobal.b-cdn.net/organizations/ggpyp/square-logo/default.png" alt="Nouns-Inspired Heirary Art" width={200} height={200} className="mx-auto rounded-lg" />
           </div>
 
           <div className="mt-8 flex justify-center">

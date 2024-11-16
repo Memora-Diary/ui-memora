@@ -35,4 +35,34 @@ export const service2 = [
       title: "Continuous Innovation",
       description: "We're constantly evolving our platform to stay ahead of digital trends, ensuring your legacy management remains cutting-edge and comprehensive.",
     },
+    {
+      title: "Complex Condition Builder",
+      description: "Create sophisticated multi-condition workflows using AND/OR logic, time-based triggers, and smart contract events.",
+      imageSrc: "/img/features/condition.svg"
+    },
+    {
+      title: "AI-Powered Monitoring",
+      description: "Our advanced AI continuously monitors multiple data sources to detect when your conditions are met.",
+      imageSrc: "/img/features/ai.svg"
+    },
+    {
+      title: "Smart Contract Integration",
+      description: "Seamlessly connect with any blockchain network and smart contract to trigger or receive actions.",
+      imageSrc: "/img/features/blockchain.svg"
+    },
+    {
+      title: "Custom Workflows",
+      description: "Build workflows for any community or use case, from DeFi to DAOs to personal estate planning.",
+      imageSrc: "/img/features/workflow.svg"
+    },
+    {
+      title: "Multi-Chain Support",
+      description: "Execute actions across different blockchain networks with our cross-chain integration.",
+      imageSrc: "/img/features/multichain.svg"
+    },
+    {
+      title: "Decentralized Security",
+      description: "Your conditions and triggers are secured by blockchain technology and executable smart contracts.",
+      imageSrc: "/img/features/security.svg"
+    }
   ];
